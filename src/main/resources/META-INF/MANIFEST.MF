@@ -1,1 +1,1 @@
-Premain-Class: com.atlassian.graev.agent.LockErrorSnitch
+Premain-Class: com.atlassian.graev.agent.Agent
