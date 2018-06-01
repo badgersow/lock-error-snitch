@@ -1,5 +1,6 @@
 package com.atlassian.graev.instrumentation;
 
+import com.atlassian.graev.Log;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -7,10 +8,12 @@ import javassist.CtConstructor;
 import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 
 public class ConstructorLogging implements ClassFileTransformer {
@@ -25,7 +28,12 @@ public class ConstructorLogging implements ClassFileTransformer {
     }
 
     public void instrument(Instrumentation instrumentation) {
-        instrumentation.addTransformer(this);
+        try {
+            instrumentation.addTransformer(this, true);
+            instrumentation.retransformClasses(clazz);
+        } catch (UnmodifiableClassException e) {
+            throw new RuntimeException("Wasn't able to retransform the target class " + clazz.getSimpleName(), e);
+        }
     }
 
     @Override
@@ -34,9 +42,8 @@ public class ConstructorLogging implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] bytecode) throws IllegalClassFormatException {
-        System.out.println(className);
-
-        if (className.equals(clazz.getName())) {
+        if (dotName(className).equals(clazz.getName())) {
+            Log.print("Instrumenting {0}", clazz.getSimpleName());
             return instrumentConstructor(bytecode);
         }
 
@@ -52,12 +59,21 @@ public class ConstructorLogging implements ClassFileTransformer {
     }
 
     private byte[] doInstrumentConstructor(byte[] bytecode) throws NotFoundException, CannotCompileException, IOException {
-        ClassPool pool = ClassPool.getDefault();
-        CtClass cc = pool.get(clazz.getSimpleName());
-        CtConstructor constructor = cc.getConstructor(Descriptor.ofConstructor(new CtClass[0]));
-        constructor.insertBefore("System.our.println(\"Hey Joe!\")");
+        final ClassPool pool = ClassPool.getDefault();
+        final CtClass classDefinition = pool.makeClass(new ByteArrayInputStream(bytecode));
+        final CtConstructor constructor = classDefinition.getConstructor(Descriptor.ofConstructor(new CtClass[0]));
 
-        System.out.println(cc + " " + constructor);
-        return cc.toBytecode();
+        Log.print("Inserting logging code to the default constructor of {0}. " +
+                "The length of old bytecode: {1}", constructor.getName(), classDefinition.toBytecode().length);
+
+        constructor.insertAfter("{  }");
+
+        Log.print("Done! The length of the new bytecode is {0}", classDefinition.toBytecode().length);
+
+        return classDefinition.toBytecode();
+    }
+
+    private String dotName(String name) {
+        return name.replace('/', '.');
     }
 }
