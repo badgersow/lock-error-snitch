@@ -1,2 +1,2 @@
-Premain-Class: com.atlassian.graev.ErrorSnitch
+Premain-Class: com.atlassian.graev.agent.ErrorSnitch
 Can-Retransform-Classes: true

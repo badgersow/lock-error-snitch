@@ -1,6 +1,6 @@
-package com.atlassian.graev;
+package com.atlassian.graev.agent;
 
-import com.atlassian.graev.instrumentation.ConstructorLogging;
+import com.atlassian.graev.agent.instrumentation.ConstructorLogging;
 
 import java.lang.instrument.Instrumentation;
 

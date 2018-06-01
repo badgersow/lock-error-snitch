@@ -1,4 +1,4 @@
-package com.atlassian.graev;
+package com.atlassian.graev.agent;
 
 import java.text.MessageFormat;
 

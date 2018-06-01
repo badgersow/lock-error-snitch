@@ -1,11 +1,7 @@
-package com.atlassian.graev.instrumentation;
+package com.atlassian.graev.agent.instrumentation;
 
-import com.atlassian.graev.Log;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.NotFoundException;
+import com.atlassian.graev.agent.Log;
+import javassist.*;
 import javassist.bytecode.Descriptor;
 
 import java.io.ByteArrayInputStream;
@@ -63,14 +59,14 @@ public class ConstructorLogging implements ClassFileTransformer {
         final CtClass classDefinition = pool.makeClass(new ByteArrayInputStream(bytecode));
         final CtConstructor constructor = classDefinition.getConstructor(Descriptor.ofConstructor(new CtClass[0]));
 
-        Log.print("Inserting logging code to the default constructor of {0}. " +
-                "The length of old bytecode: {1}", constructor.getName(), classDefinition.toBytecode().length);
+        Log.print("Inserting logging code to the default constructor of {0}", constructor.getName());
 
-        constructor.insertAfter("{  }");
+        constructor.insertAfter("{ System.out.println(123); }");
 
-        Log.print("Done! The length of the new bytecode is {0}", classDefinition.toBytecode().length);
-
-        return classDefinition.toBytecode();
+        byte[] byteCode = classDefinition.toBytecode();
+        classDefinition.detach();
+        Log.print("Done! The length of the new bytecode is {0}", byteCode.length);
+        return byteCode;
     }
 
     private String dotName(String name) {
