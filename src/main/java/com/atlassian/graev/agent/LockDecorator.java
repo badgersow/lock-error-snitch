@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,15 +36,14 @@ public class LockDecorator implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] bytecode) {
-        Log.print("Checking class {0}", className);
+        final Collection<String> matchingMethods = new ArrayList<>();
+        for (String targetClass : methodsByClass.keySet()) {
+            if (targetClass.equals(className)) {
+                return instrumentMethods(bytecode, className, methodsByClass.get(targetClass));
+            }
+        }
 
-        final Collection<String> matchingMethods = methodsByClass.entrySet().stream()
-                .filter(e -> className.equals(e.getKey()))
-                .map(Map.Entry::getValue)
-                .findAny()
-                .orElse(Collections.emptyList());
-
-        return instrumentMethods(bytecode, className, matchingMethods);
+        return bytecode;
     }
 
     private byte[] instrumentMethods(byte[] bytecode, String className, Collection<String> methods) {
