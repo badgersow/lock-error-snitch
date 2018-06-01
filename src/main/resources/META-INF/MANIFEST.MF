@@ -1,1 +1,2 @@
 Premain-Class: com.atlassian.graev.agent.Agent
+Can-Retransform-Classes: true

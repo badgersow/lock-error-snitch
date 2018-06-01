@@ -11,23 +11,35 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LockDecorator implements ClassFileTransformer {
 
     private final Map<String, Collection<String>> methodsByClass = new HashMap<>();
 
-    LockDecorator() {
+    private final List<Class<?>> classes = new ArrayList<>();
+
+    LockDecorator() throws ClassNotFoundException {
         methodsByClass.put("java/util/concurrent/locks/ReentrantLock", Arrays.asList("lock", "unlock"));
+        for (String className : methodsByClass.keySet()) {
+            classes.add(Class.forName(className.replace('/', '.')));
+        }
     }
 
     void instrument(Instrumentation instrumentation) {
-        instrumentation.addTransformer(this);
+        try {
+            instrumentation.addTransformer(this, true);
+            instrumentation.retransformClasses(classes.toArray(new Class[0]));
+        } catch (UnmodifiableClassException e) {
+            throw new RuntimeException("Classes reloading failed");
+        }
     }
 
     @Override
@@ -36,7 +48,6 @@ public class LockDecorator implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] bytecode) {
-        final Collection<String> matchingMethods = new ArrayList<>();
         for (String targetClass : methodsByClass.keySet()) {
             if (targetClass.equals(className)) {
                 return instrumentMethods(bytecode, className, methodsByClass.get(targetClass));
