@@ -63,7 +63,7 @@ You can check that this agent saves
 ```
 $ java -cp lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
 Start corrupting the lock...
-Lock monster did a good job
+Lock was corrupted by StackOverflowError
 $ java -cp lock-snitch-agent.jar -javaagent:lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
 Instrumenting 2 methods for class java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock
 Inserting logging code to the method lock

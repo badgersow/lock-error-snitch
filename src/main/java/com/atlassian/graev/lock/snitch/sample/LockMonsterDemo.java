@@ -28,7 +28,7 @@ public class LockMonsterDemo {
         if (lock.tryLock()) {
             System.out.println("Lock wasn't corrupted");
         } else {
-            System.out.println("Lock monster did a good job");
+            System.out.println("Lock was corrupted by StackOverflowError");
         }
     }
 
