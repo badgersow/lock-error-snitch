@@ -26,6 +26,7 @@ public class LockCorrupter {
     }
 
     private void corruptLockAndSuppressError() {
+        System.out.println("Start corrupting lock :)");
         try {
             messWithLock();
         } catch (Throwable t) {

@@ -76,16 +76,16 @@ public class LockDecorator implements ClassFileTransformer {
         Log.print("Instructing {0} methods for class {1}", methods.size(), className);
 
         for (String methodName : methods) {
-            final CtMethod method = classDefinition.getMethod("unlock",
+            final CtMethod method = classDefinition.getMethod(methodName,
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
             Log.print("Inserting logging code to the method {0}", methodName);
-            method.addCatch("{ System.out.println(\"Hello Kitty \" + $e); throw $e; }", pool.get("java.lang.Error"));
+            method.addCatch("{ System.exit(0); }", pool.get("java.lang.StackOverflowError"));
         }
 
         byte[] newBytecode = classDefinition.toBytecode();
         classDefinition.detach();
         Log.print("Done! The length of the new bytecode is {0}", newBytecode.length);
-        return bytecode;
+        return newBytecode;
     }
 
 }
