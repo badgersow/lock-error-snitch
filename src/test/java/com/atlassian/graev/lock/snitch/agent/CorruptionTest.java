@@ -1,16 +1,11 @@
 package com.atlassian.graev.lock.snitch.agent;
 
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,17 +21,15 @@ public class CorruptionTest {
 
     private static final boolean expectCorrectness = Boolean.getBoolean("lock.snitch.test.expect.correctness");
 
-    private static final int numberOfTrials = 100;
-
-    private static final ExecutorService executor = new ThreadPoolExecutor(1, 1,
-            Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
-            r -> new Thread(null, r, "lock-corrupter-in-UT", 64 * 1024)); // likely value to cause SOE
+    private static final int numberOfTrials = 10;
 
     @Parameterized.Parameter
     public Class<? extends Lock> lockClass;
 
     @Parameterized.Parameter(1)
     public Supplier<Lock> supplier;
+
+    private Lock currentLock;
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> createParameters() {
@@ -66,35 +59,31 @@ public class CorruptionTest {
 
     private boolean isSingleExperimentCorrect() {
         try {
-            final Lock lock = supplier.get();
-            executor.submit(() -> messWithLock(lock)).get();
-            return lock.tryLock();
+            currentLock = supplier.get();
+            final Thread worker = new Thread(null, this::messWithLock,
+                    "lock-corrupter-in-UT", 256 * 1024);
+            worker.start();
+            worker.join();
+            return currentLock.tryLock();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void messWithLock(Lock lock) {
+    private void messWithLock() {
         try {
-            doMessWithLock(lock);
+            doMessWithLock();
         } catch (StackOverflowError error) {
+            error.printStackTrace();
             // 😈
         }
     }
 
     @SuppressWarnings("InfiniteRecursion")
-    private void doMessWithLock(Lock lock) {
-        lock.lock();
-        try {
-            doMessWithLock(lock);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        executor.shutdown();
+    private void doMessWithLock() {
+        currentLock.lock();
+        currentLock.unlock();
+        doMessWithLock();
     }
 
     private static <T extends Lock> Object[] param(Class<T> clazz, Supplier<T> supplier) {
