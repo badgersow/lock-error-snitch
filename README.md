@@ -54,7 +54,7 @@ cd lock-error-snitch
 mvn clean package
 ```
 
-The agent jar is `target/lock-snitch-agent.jar`
+The agent jar can be found in `target/lock-snitch-agent.jar`
 
 #### Usage
 
