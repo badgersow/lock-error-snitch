@@ -41,7 +41,7 @@ public class InstrumentedCodeHelper {
      * Create unique file with stacktrace.
      */
     public static void printThrowableToFile(Throwable t) {
-        if (++writtenListings > Settings.maxTraceFiles()) {
+        if (writtenListings >= Settings.maxTraceFiles()) {
             // We need to be careful not to spam disk with huge traces
             return;
         }
@@ -51,6 +51,7 @@ public class InstrumentedCodeHelper {
             final PrintWriter out = new PrintWriter("lock-snitch-trace-" + uuid + "-" + getSuccessfulRuns());
             t.printStackTrace(out);
             out.close();
+            writtenListings++;
         } catch (IOException e) {
             e.printStackTrace();
         }

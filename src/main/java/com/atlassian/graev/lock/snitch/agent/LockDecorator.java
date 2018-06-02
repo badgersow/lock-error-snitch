@@ -28,6 +28,9 @@ class LockDecorator implements ClassFileTransformer {
 
     LockDecorator() throws ClassNotFoundException {
         methodsByClass.put("java/util/concurrent/locks/ReentrantLock", Arrays.asList("lock", "unlock"));
+        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$ReadLock", Arrays.asList("lock", "unlock"));
+        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock", Arrays.asList("lock", "unlock"));
+
         for (String className : methodsByClass.keySet()) {
             classes.add(Class.forName(className.replace('/', '.')));
         }
