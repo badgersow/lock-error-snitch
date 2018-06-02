@@ -7,6 +7,7 @@ import java.io.PrintWriter;
  * Agent will load this class by Bootstrap classloader.
  * It is going to be used instrumented code.
  */
+@SuppressWarnings("WeakerAccess")
 public class InstrumentedCodeHelper {
 
     /**

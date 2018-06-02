@@ -2,6 +2,7 @@ package com.atlassian.graev.lock.snitch.sample;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+@SuppressWarnings("WeakerAccess")
 public class LockCorrupter {
 
     private final ReentrantLock lock = new ReentrantLock();

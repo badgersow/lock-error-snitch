@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LockDecorator implements ClassFileTransformer {
+class LockDecorator implements ClassFileTransformer {
 
     private final Map<String, Collection<String>> methodsByClass = new HashMap<>();
 

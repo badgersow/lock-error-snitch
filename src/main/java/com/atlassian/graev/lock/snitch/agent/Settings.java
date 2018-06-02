@@ -1,6 +1,6 @@
 package com.atlassian.graev.lock.snitch.agent;
 
-public class Settings {
+class Settings {
 
     private static final int MAX_TRACE_FILES = Integer.getInteger("lock.snitch.max.trace.files", 10);
     private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.guarding.recursion.depth", 100);

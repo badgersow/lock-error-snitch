@@ -2,8 +2,8 @@ package com.atlassian.graev.lock.snitch.agent;
 
 import java.text.MessageFormat;
 
-public class AgentLogger {
-    public static void print(String s, Object... args) {
+class AgentLogger {
+    static void print(String s, Object... args) {
         if (args.length == 0) {
             print(s);
         }
@@ -11,7 +11,7 @@ public class AgentLogger {
         print(MessageFormat.format(s, args));
     }
 
-    public static void print(String s) {
+    private static void print(String s) {
         System.out.println(s);
     }
 }
