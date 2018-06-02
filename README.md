@@ -1,19 +1,19 @@
 ## Lock error snitch
 
-Simple Java Agent to save you from StackOverflowErrors inside ReentrantLocks.
+Simple Java Agent to save you from StackOverflowErrors inside ReentrantLocks
 
 #### TL;DR
 
 StackOverflowException inside lock/unlock methods
-* Will NOT corrupt them
-* Will be logged for further investigation
+* Will NOT corrupt lock instances
+* Stack trace will be logged for further investigation
 
 *Downside:* lock/unlock methods become slower
 
 #### Background
 
 Sometimes the code has a bug and it falls to infinite recursion.
-If StackOverflowError happens inside lock() or unlock() methods in standard Java locks, it is possible
+If StackOverflowError happens inside `lock()` or `unlock()` methods in standard Java locks, it is possible
 that these locks will end up in inconsistent state.
 
 This situation is very hard to detect because when you catch StackOverflowError, you might not have enough stack frames
@@ -25,11 +25,11 @@ Pattern would be the following:
 * you don't see the owner of the lock in thread dump
 * if you look at the owner in heap dump, this owner would be killed or doing unrelated job
 
-Once this error is detected, only restart can help.
+Once this error is detected, only JVM restart can help.
 
 #### How it works
 
-Java agent loads before main() method is called and instruments bytecode of the methods:
+Java agent loads before `main()` method is called and instruments bytecode of the methods in standard Java classes:
 * `j.u.c.l.ReentrantLock#lock`
 * `j.u.c.l.ReentrantLock#unlock`
 * `j.u.c.l.ReentrantReadWriteLock$ReadLock#lock`
@@ -37,9 +37,10 @@ Java agent loads before main() method is called and instruments bytecode of the 
 * `j.u.c.l.ReentrantReadWriteLock$WriteLock#lock`
 * `j.u.c.l.ReentrantReadWriteLock$WriteLock#unlock`
 
-New code does
-1. Before method execution is does dummy recursion to check that we have enough stack space.
-2. Catches errors and stores them to file.
+Instrumented code does
+1. Before useful method execution it does dummy recursion of predefined depth to check that we have enough
+stack space and to provoke StackOverflowError earlier.
+2. Catches any Throwables and stores them to file.
 
 These two actions allow us to
 * StackOverflowError inside lock/unlock methods won't corrupt them because they will happen in dummy recursion
@@ -53,12 +54,16 @@ cd lock-error-snitch
 mvn clean package
 ```
 
-The agent class you seek is `target/lock-snitch-agent.jar`
+The agent jar is `target/lock-snitch-agent.jar`
 
 #### Usage
 
-Agent jar file has a demo class that corrupts the lock: (LockMonsterDemo)[https://github.com/badgersow/lock-error-snitch/blob/master/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java].
-You can check that this agent saves
+To use in your JVM, simply pass `-javaagent:lock-snitch-agent.jar`. It is required to have this jar in the folder where
+JVM is started for correct classloading hacks.
+
+To check that it works, agent jar file has a demo class that corrupts the lock: (LockMonsterDemo)[https://github.com/badgersow/lock-error-snitch/blob/master/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java].
+Please see the example below. If your can't reproduce corrupted locks without the agent, don't worry. It's very platform-specific
+and depends on many factors. On the other hand, if you can reproduce corrupted locks with agent, this is a bug. Please write me an email.
 
 ```
 $ java -cp lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
