@@ -20,14 +20,14 @@ public class LockCorrupter {
         lockMonster.join();
 
         if (lock.tryLock()) {
-            System.out.println("Lock wasn't corrupted :(");
+            System.out.println("Lock wasn't corrupted");
         } else {
             System.out.println("Lock monster did a good job");
         }
     }
 
     private void corruptLockAndSuppressError() {
-        System.out.println("Start corrupting lock :)");
+        System.out.println("Start corrupting the lock...");
         try {
             messWithLock();
         } catch (Throwable t) {
