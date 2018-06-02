@@ -80,7 +80,7 @@ public class LockDecorator implements ClassFileTransformer {
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
             Log.print("Inserting logging code to the method {0}", methodName);
             method.insertBefore("{ com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.doRecursion(100); }");
-            method.addCatch("{ java.lang.System.out.println(123); throw $e; }", pool.get("java.lang.StackOverflowError"));
+            method.addCatch("{ $e.printStackTrace(); throw $e; }", pool.get("java.lang.StackOverflowError"));
         }
 
         byte[] newBytecode = classDefinition.toBytecode();

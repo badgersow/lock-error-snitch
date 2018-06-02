@@ -1,2 +1,3 @@
 Premain-Class: com.atlassian.graev.lock.snitch.agent.Agent
 Can-Retransform-Classes: true
+Boot-Class-Path: lock-snitch-helper.jar

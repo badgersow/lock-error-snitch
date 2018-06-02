@@ -2,7 +2,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
 
-    <id>jar-with-dependencies</id>
+    <id>agent-assembly</id>
 
     <formats>
         <format>jar</format>
@@ -17,7 +17,7 @@
             <useStrictFiltering>true</useStrictFiltering>
             <unpack>true</unpack>
             <includes>
-                <include>com.atlassian.graev:*</include>
+                <include>com.atlassian.graev:lock-error-snitch</include>
                 <include>javassist:javassist</include>
             </includes>
         </dependencySet>

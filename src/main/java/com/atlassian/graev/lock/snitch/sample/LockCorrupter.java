@@ -13,7 +13,7 @@ public class LockCorrupter {
         new LockCorrupter().spawnMonster();
     }
 
-    public void spawnMonster() throws InterruptedException {
+    private void spawnMonster() throws InterruptedException {
         final Thread lockMonster = new Thread(this::corruptLockAndSuppressError, "lock-monster");
         lockMonster.start();
         lockMonster.join();
