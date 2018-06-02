@@ -15,8 +15,14 @@ public class InstrumentedCodeHelper {
      */
     private static long successfulRuns = 0L;
 
+    /**
+     * Control how many files we create
+     */
     private static int writtenListings = 0;
 
+    /**
+     * Do recursion by ourselves to catch StackOverflowError and to still have enough stack space for logging to file
+     */
     public static void dummyRecursion() {
         doDummyRecursion(Settings.recursionDepth());
     }

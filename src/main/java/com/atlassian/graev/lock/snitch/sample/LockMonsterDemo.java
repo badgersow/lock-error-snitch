@@ -3,6 +3,10 @@ package com.atlassian.graev.lock.snitch.sample;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Demo class to fail without agent and to path with one.
+ * It is very hard to emulate the same thing with unit tests because it is highly platform specific.
+ */
 @SuppressWarnings("WeakerAccess")
 public class LockMonsterDemo {
 

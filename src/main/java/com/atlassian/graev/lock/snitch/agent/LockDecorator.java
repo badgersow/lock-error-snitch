@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class instruments bytecode for locks
+ */
 class LockDecorator implements ClassFileTransformer {
 
     private final Map<String, Collection<String>> methodsByClass = new HashMap<>();
@@ -39,6 +42,7 @@ class LockDecorator implements ClassFileTransformer {
     void instrument(Instrumentation instrumentation) {
         try {
             instrumentation.addTransformer(this, true);
+            // This is a required step because these classes are loaded before the agent
             instrumentation.retransformClasses(classes.toArray(new Class[0]));
         } catch (UnmodifiableClassException e) {
             throw new RuntimeException("Failed to initialize instrumentation");
@@ -82,10 +86,12 @@ class LockDecorator implements ClassFileTransformer {
             final CtMethod method = classDefinition.getMethod(methodName,
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
             AgentLogger.print("Inserting logging code to the method {0}", methodName);
+            // Before useful lock code let's do dummy recursion to provoke StackOverflowError
             method.insertBefore("" +
                     "{ " +
                     "   com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.dummyRecursion(); " +
                     "}");
+            // Catch errors and save them to file
             method.addCatch("" +
                     "{ " +
                     "   com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.printThrowableToFile($e); " +

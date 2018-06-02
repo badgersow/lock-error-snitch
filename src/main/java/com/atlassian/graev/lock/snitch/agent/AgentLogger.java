@@ -2,6 +2,9 @@ package com.atlassian.graev.lock.snitch.agent;
 
 import java.text.MessageFormat;
 
+/**
+ * Helper class to log the actions of agent
+ */
 class AgentLogger {
     static void print(String s, Object... args) {
         if (args.length == 0) {
