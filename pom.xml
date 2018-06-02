@@ -61,20 +61,6 @@
                             <finalName>lock-snitch-agent</finalName>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>helper</id>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/helper-package.xml</descriptor>
-                            </descriptors>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>lock-snitch-helper</finalName>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
