@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,9 +26,7 @@ public class CorruptionTest {
 
     private static final boolean expectCorrectness = Boolean.getBoolean("lock.snitch.test.expect.correctness");
 
-    private static final int numberOfTrials = 10;
-
-    private static final double corruptPercentage = 0.9;
+    private static final int numberOfTrials = 100;
 
     private static final ExecutorService executor = new ThreadPoolExecutor(1, 1,
             Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
@@ -36,57 +35,61 @@ public class CorruptionTest {
     @Parameterized.Parameter
     public Class<? extends Lock> lockClass;
 
-    private Lock currentLock;
+    @Parameterized.Parameter(1)
+    public Supplier<Lock> supplier;
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> createParameters() {
         return Arrays.asList(
-                param(ReentrantLock.class),
-                param(ReentrantReadWriteLock.ReadLock.class),
-                param(ReentrantReadWriteLock.WriteLock.class)
+                param(ReentrantLock.class, ReentrantLock::new),
+                param(ReentrantReadWriteLock.ReadLock.class, () -> new ReentrantReadWriteLock().readLock()),
+                param(ReentrantReadWriteLock.WriteLock.class, () -> new ReentrantReadWriteLock().writeLock())
         );
     }
 
     @Test
     public void testCorruptionOrCorrectness() {
-        final int correctExperiments = runExperiments(numberOfTrials);
+        final int correctExperiments = runExperiments();
 
         if (expectCorrectness) {
             assertThat(correctExperiments, equalTo(numberOfTrials));
         }
 
-        assertThat(correctExperiments, lessThan((int) Math.floor(numberOfTrials * (1 - corruptPercentage))));
+        assertThat(correctExperiments, lessThan(numberOfTrials));
     }
 
-    public int runExperiments(int experiments) {
-        return (int) IntStream.rangeClosed(1, experiments)
+    private int runExperiments() {
+        return (int) IntStream.rangeClosed(1, numberOfTrials)
                 .filter(i -> isSingleExperimentCorrect())
                 .count();
     }
 
-    public boolean isSingleExperimentCorrect() {
+    private boolean isSingleExperimentCorrect() {
         try {
-            currentLock = lockClass.newInstance();
-            executor.submit(this::messWithLock).get();
-            return currentLock.tryLock();
+            final Lock lock = supplier.get();
+            executor.submit(() -> messWithLock(lock)).get();
+            return lock.tryLock();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void messWithLock() {
+    private void messWithLock(Lock lock) {
         try {
-            doMessWithLock();
+            doMessWithLock(lock);
         } catch (StackOverflowError error) {
             // 😈
         }
     }
 
     @SuppressWarnings("InfiniteRecursion")
-    private void doMessWithLock() {
-        currentLock.lock();
-        currentLock.unlock();
-        doMessWithLock();
+    private void doMessWithLock(Lock lock) {
+        lock.lock();
+        try {
+            doMessWithLock(lock);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @AfterClass
@@ -94,8 +97,8 @@ public class CorruptionTest {
         executor.shutdown();
     }
 
-    private static Object[] param(Class<? extends Lock> clazz) {
-        return new Object[]{clazz};
+    private static <T extends Lock> Object[] param(Class<T> clazz, Supplier<T> supplier) {
+        return new Object[]{clazz, supplier};
     }
 
 }
