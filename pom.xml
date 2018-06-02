@@ -6,7 +6,7 @@
 
     <groupId>com.atlassian.graev</groupId>
     <artifactId>lock-error-snitch</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
