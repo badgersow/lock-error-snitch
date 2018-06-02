@@ -65,6 +65,7 @@ To check that it works, agent jar file has a [demo class that corrupts the lock]
 Please see the example below. If your can't reproduce corrupted locks without the agent, don't worry. It's very platform-specific
 and depends on many factors. On the other hand, if you can reproduce corrupted locks with agent, this is a bug. Please write me an email.
 
+The following commands are executed in a folder with agent jar:
 ```
 $ java -cp lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
 Start corrupting the lock...
