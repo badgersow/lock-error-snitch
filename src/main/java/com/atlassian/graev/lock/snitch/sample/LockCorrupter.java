@@ -2,9 +2,6 @@ package com.atlassian.graev.lock.snitch.sample;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Xss256K should do the job :)
- */
 public class LockCorrupter {
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -14,7 +11,11 @@ public class LockCorrupter {
     }
 
     private void spawnMonster() throws InterruptedException {
-        final Thread lockMonster = new Thread(this::corruptLockAndSuppressError, "lock-monster");
+        final Thread lockMonster = new Thread(
+                null,
+                this::corruptLockAndSuppressError,
+                "lock-monster",
+                256 * 1024); // likely value to get corruption
         lockMonster.start();
         lockMonster.join();
 
