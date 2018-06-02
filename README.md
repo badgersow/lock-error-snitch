@@ -101,7 +101,7 @@ java.lang.StackOverflowError
 
 `-Dlock.snitch.max.trace.files=10`
 
-Maximum number of files with listing for this particular JVM. Allows not to spam the hard drive.
+Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.
 
 `lock.snitch.recursion.depth=100`
 
