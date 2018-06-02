@@ -3,12 +3,12 @@ package com.atlassian.graev.lock.snitch.sample;
 import java.util.concurrent.locks.ReentrantLock;
 
 @SuppressWarnings("WeakerAccess")
-public class LockCorrupter {
+public class LockMonsterDemo {
 
     private final ReentrantLock lock = new ReentrantLock();
 
     public static void main(String[] args) throws InterruptedException {
-        new LockCorrupter().spawnMonster();
+        new LockMonsterDemo().spawnMonster();
     }
 
     private void spawnMonster() throws InterruptedException {
