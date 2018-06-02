@@ -1,4 +1,4 @@
-package com.atlassian.graev.sample;
+package com.atlassian.graev.lock.snitch.sample;
 
 import java.util.concurrent.locks.ReentrantLock;
 

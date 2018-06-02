@@ -1,4 +1,4 @@
-package com.atlassian.graev.agent;
+package com.atlassian.graev.lock.snitch.agent;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -38,7 +38,7 @@ public class LockDecorator implements ClassFileTransformer {
             instrumentation.addTransformer(this, true);
             instrumentation.retransformClasses(classes.toArray(new Class[0]));
         } catch (UnmodifiableClassException e) {
-            throw new RuntimeException("Classes reloading failed");
+            throw new RuntimeException("Failed to initialize instrumentation");
         }
     }
 
@@ -73,13 +73,14 @@ public class LockDecorator implements ClassFileTransformer {
         final ClassPool pool = ClassPool.getDefault();
         final CtClass classDefinition = pool.makeClass(new ByteArrayInputStream(bytecode));
 
-        Log.print("Instructing {0} methods for class {1}", methods.size(), className);
+        Log.print("Instrumenting {0} methods for class {1}", methods.size(), className);
 
         for (String methodName : methods) {
             final CtMethod method = classDefinition.getMethod(methodName,
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
             Log.print("Inserting logging code to the method {0}", methodName);
-            method.addCatch("{ System.exit(0); }", pool.get("java.lang.StackOverflowError"));
+            method.insertBefore("{ com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.doRecursion(100); }");
+            method.addCatch("{ java.lang.System.out.println(123); throw $e; }", pool.get("java.lang.StackOverflowError"));
         }
 
         byte[] newBytecode = classDefinition.toBytecode();

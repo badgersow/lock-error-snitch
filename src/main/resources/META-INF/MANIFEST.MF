@@ -1,2 +1,2 @@
-Premain-Class: com.atlassian.graev.agent.Agent
+Premain-Class: com.atlassian.graev.lock.snitch.agent.Agent
 Can-Retransform-Classes: true

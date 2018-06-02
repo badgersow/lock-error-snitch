@@ -1,4 +1,4 @@
-package com.atlassian.graev.agent;
+package com.atlassian.graev.lock.snitch.agent;
 
 import java.text.MessageFormat;
 
