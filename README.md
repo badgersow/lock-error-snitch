@@ -61,7 +61,7 @@ The agent jar can be found in `target/lock-snitch-agent.jar`
 To use in your JVM, simply pass `-javaagent:lock-snitch-agent.jar`. It is required to have this jar in the folder where
 JVM is started for correct classloading hacks.
 
-To check that it works, agent jar file has a demo class that corrupts the lock: (LockMonsterDemo)[https://github.com/badgersow/lock-error-snitch/blob/master/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java].
+To check that it works, agent jar file has a demo class that corrupts the lock: [LockMonsterDemo](https://github.com/badgersow/lock-error-snitch/blob/master/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java).
 Please see the example below. If your can't reproduce corrupted locks without the agent, don't worry. It's very platform-specific
 and depends on many factors. On the other hand, if you can reproduce corrupted locks with agent, this is a bug. Please write me an email.
 
