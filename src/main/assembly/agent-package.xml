@@ -18,7 +18,7 @@
             <unpack>true</unpack>
             <includes>
                 <include>com.atlassian.graev:lock-error-snitch</include>
-                <include>javassist:javassist</include>
+                <include>org.javassist:javassist</include>
             </includes>
         </dependencySet>
     </dependencySets>
