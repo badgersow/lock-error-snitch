@@ -99,6 +99,11 @@ java.lang.StackOverflowError
 
 #### Parameters
 
+`-Dlock.snitch.skip.init.file=true`
+
+Skip creation of init file inside temp directory. The sole purpose of this file is to signal that everything is OK 
+and the agent is able to write something to the directory.
+
 `-Dlock.snitch.traces.directory=.`
 
 Directory where trace files are going to be created. Please check that application has write access to it.

@@ -22,6 +22,10 @@ public class InstrumentedCodeHelper {
      */
     private static AtomicLong writtenListings = new AtomicLong();
 
+    static {
+        createInitFileIfNeeded();
+    }
+
     /**
      * Do recursion by ourselves to catch StackOverflowError and to still have enough stack space for logging to file
      */
@@ -55,13 +59,31 @@ public class InstrumentedCodeHelper {
         }
 
         try {
-            final String uid = String.valueOf(System.nanoTime());
-            final String filename = "lock-snitch-trace-" + uid + "-" + getSuccessfulRuns();
+            final String filename = "lock-snitch-trace-" + generateUid() + "-" + getSuccessfulRuns();
             final String tracePath = Settings.tracesDirectory() + File.separator + filename;
             final PrintWriter out = new PrintWriter(tracePath);
             t.printStackTrace(out);
             out.close();
             writtenListings.incrementAndGet();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String generateUid() {
+        return String.valueOf(System.nanoTime());
+    }
+
+    private static void createInitFileIfNeeded() {
+        if (Settings.skipInitFile()) {
+            return;
+        }
+
+        try {
+            final String filename = "lock-snitch-init-" + generateUid();
+            final String initPath = Settings.tracesDirectory() + File.separator + filename;
+            //noinspection ResultOfMethodCallIgnored
+            new File(initPath).createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }

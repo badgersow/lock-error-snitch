@@ -6,6 +6,11 @@ package com.atlassian.graev.lock.snitch.agent;
 class Settings {
 
     /**
+     * Do not create init file on startup.
+     */
+    private static final boolean SKIP_INIT_FILE = Boolean.getBoolean("lock.snitch.skip.init.file");
+
+    /**
      * The directory where trace files are going to be created
      */
     private static final String TRACES_DIRECTORY = System.getProperty("lock.snitch.traces.directory", ".");
@@ -23,6 +28,10 @@ class Settings {
      * Default value is a trade-off between efficiency and safety.
      */
     private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 250);
+
+    static boolean skipInitFile() {
+        return SKIP_INIT_FILE;
+    }
 
     static String tracesDirectory() {
         return TRACES_DIRECTORY;
