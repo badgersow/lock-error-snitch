@@ -110,7 +110,7 @@ and the agent is able to write something to the directory.
 
 Directory where trace files are going to be created. Please check that application has write access to it.
 
-`-Dlock.snitch.max.trace.files=25`
+`-Dlock.snitch.max.trace.files=100`
 
 Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.
 

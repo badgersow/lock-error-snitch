@@ -19,7 +19,7 @@ class Settings {
      * Maximum numbers of listing files to keep.
      * This is only process-wide settings. If JVM get's restarted, counter starts from 0.
      */
-    private static final int MAX_TRACE_FILES = Integer.getInteger("lock.snitch.max.trace.files", 25);
+    private static final int MAX_TRACE_FILES = Integer.getInteger("lock.snitch.max.trace.files", 100);
 
     /**
      * Depth of dummy recursion.
