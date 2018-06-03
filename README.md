@@ -10,6 +10,8 @@ StackOverflowException inside lock/unlock methods
 
 *Downside:* lock/unlock methods become slower
 
+*Warning:* this agent loads javassist. Please make sure its version is compatible with your application. 
+
 #### Background
 
 Sometimes the code has a bug and it falls to infinite recursion.
