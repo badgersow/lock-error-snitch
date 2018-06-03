@@ -107,6 +107,6 @@ Directory where trace files are going to be created. Please check that applicati
 
 Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.
 
-`-Dlock.snitch.recursion.depth=100`
+`-Dlock.snitch.recursion.depth=250`
 
 Depth of the dummy recursion. Trade-off between performance and ability to have enough stack frames for logging.

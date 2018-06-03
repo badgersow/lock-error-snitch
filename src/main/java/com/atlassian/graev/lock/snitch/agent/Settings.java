@@ -20,9 +20,9 @@ class Settings {
      * Depth of dummy recursion.
      * Should be little enough not to affect performance.
      * Should be big enough to give us required stack size for logging.
-     * Default value of 100 is a trade-off between efficiency and safety.
+     * Default value is a trade-off between efficiency and safety.
      */
-    private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 100);
+    private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 250);
 
     static String tracesDirectory() {
         return TRACES_DIRECTORY;
