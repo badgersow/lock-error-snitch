@@ -103,6 +103,6 @@ java.lang.StackOverflowError
 
 Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.
 
-`lock.snitch.recursion.depth=100`
+`-Dlock.snitch.recursion.depth=100`
 
 Depth of the dummy recursion. Trade-off between performance and ability to have enough stack frames for logging.

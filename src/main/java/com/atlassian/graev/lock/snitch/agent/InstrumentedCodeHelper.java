@@ -2,6 +2,7 @@ package com.atlassian.graev.lock.snitch.agent;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Agent will load this class by Bootstrap classloader.
@@ -13,12 +14,12 @@ public class InstrumentedCodeHelper {
     /**
      * This counter thing keeps JIT from optimizing away pointless recursion.
      */
-    private static long successfulRuns = 0L;
+    private static AtomicLong successfulRuns = new AtomicLong();
 
     /**
      * Control how many files we create
      */
-    private static int writtenListings = 0;
+    private static AtomicLong writtenListings = new AtomicLong();
 
     /**
      * Do recursion by ourselves to catch StackOverflowError and to still have enough stack space for logging to file
@@ -29,7 +30,7 @@ public class InstrumentedCodeHelper {
 
     static void doDummyRecursion(int depth) {
         if (depth <= 1) {
-            successfulRuns++;
+            successfulRuns.incrementAndGet();
             return;
         }
 
@@ -40,14 +41,14 @@ public class InstrumentedCodeHelper {
      * We are going to use the counter to make JIT not to optimize away recursion
      */
     public static long getSuccessfulRuns() {
-        return successfulRuns;
+        return successfulRuns.get();
     }
 
     /**
      * Create unique file with stacktrace.
      */
     public static void printThrowableToFile(Throwable t) {
-        if (writtenListings >= Settings.maxTraceFiles()) {
+        if (writtenListings.get() >= Settings.maxTraceFiles()) {
             // We need to be careful not to spam disk with huge traces
             return;
         }
@@ -57,7 +58,7 @@ public class InstrumentedCodeHelper {
             final PrintWriter out = new PrintWriter("lock-snitch-trace-" + uuid + "-" + getSuccessfulRuns());
             t.printStackTrace(out);
             out.close();
-            writtenListings++;
+            writtenListings.incrementAndGet();
         } catch (IOException e) {
             e.printStackTrace();
         }
