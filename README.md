@@ -99,6 +99,10 @@ java.lang.StackOverflowError
 
 #### Parameters
 
+`-Dlock.snitch.traces.directory=.`
+
+Directory where trace files are going to be created. Please check that application has write access to it.
+
 `-Dlock.snitch.max.trace.files=10`
 
 Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.

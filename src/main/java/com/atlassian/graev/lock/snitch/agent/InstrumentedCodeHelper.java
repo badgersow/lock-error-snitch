@@ -1,5 +1,6 @@
 package com.atlassian.graev.lock.snitch.agent;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicLong;
@@ -54,8 +55,10 @@ public class InstrumentedCodeHelper {
         }
 
         try {
-            final String uuid = System.nanoTime() + "";
-            final PrintWriter out = new PrintWriter("lock-snitch-trace-" + uuid + "-" + getSuccessfulRuns());
+            final String uid = String.valueOf(System.nanoTime());
+            final String filename = "lock-snitch-trace-" + uid + "-" + getSuccessfulRuns();
+            final String tracePath = Settings.tracesDirectory() + File.separator + filename;
+            final PrintWriter out = new PrintWriter(tracePath);
             t.printStackTrace(out);
             out.close();
             writtenListings.incrementAndGet();

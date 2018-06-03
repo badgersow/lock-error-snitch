@@ -6,6 +6,11 @@ package com.atlassian.graev.lock.snitch.agent;
 class Settings {
 
     /**
+     * The directory where trace files are going to be created
+     */
+    private static final String TRACES_DIRECTORY = System.getProperty("lock.snitch.traces.directory", ".");
+
+    /**
      * Maximum numbers of listing files to keep.
      * This is only process-wide settings. If JVM get's restarted, counter starts from 0.
      */
@@ -18,6 +23,10 @@ class Settings {
      * Default value of 100 is a trade-off between efficiency and safety.
      */
     private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 100);
+
+    static String tracesDirectory() {
+        return TRACES_DIRECTORY;
+    }
 
     static int maxTraceFiles() {
         return MAX_TRACE_FILES;
