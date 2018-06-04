@@ -29,16 +29,15 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.atlassian.graev;
+package com.atlassian.graev.lock.snitch.benchmark;
 
 import org.openjdk.jmh.annotations.Benchmark;
 
-public class MyBenchmark {
+public class LockBenchmark {
 
     @Benchmark
     public void testMethod() {
-        // This is a demo/sample template for building your JMH benchmarks. Edit as needed.
-        // Put your benchmark code here.
+
     }
 
 }
