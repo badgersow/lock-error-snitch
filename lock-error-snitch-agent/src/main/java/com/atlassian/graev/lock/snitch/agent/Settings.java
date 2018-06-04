@@ -27,7 +27,7 @@ class Settings {
      * Should be big enough to give us required stack size for logging.
      * Default value is a trade-off between efficiency and safety.
      */
-    private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 250);
+    private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 30);
 
     static boolean skipInitFile() {
         return SKIP_INIT_FILE;

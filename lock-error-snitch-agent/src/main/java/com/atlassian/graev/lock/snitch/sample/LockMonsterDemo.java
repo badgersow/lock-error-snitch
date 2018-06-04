@@ -37,6 +37,7 @@ public class LockMonsterDemo {
         try {
             messWithLock();
         } catch (Throwable t) {
+            t.printStackTrace();
             // 😈
         }
     }
