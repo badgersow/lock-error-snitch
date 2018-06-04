@@ -34,23 +34,42 @@ package com.atlassian.graev.lock.snitch.benchmark;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.infra.Blackhole;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ReentrantLockBenchmark {
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+public class LocksBenchmark {
 
     @org.openjdk.jmh.annotations.State(Scope.Thread)
     public static class State {
-        ReentrantLock lock = new ReentrantLock();
+        Lock lock = new ReentrantLock();
+        Lock readLock = new ReentrantReadWriteLock().readLock();
+        Lock writeLock = new ReentrantReadWriteLock().writeLock();
     }
 
     @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    public void testLockUnlock(State s, Blackhole bh) {
+    public void testOrdinaryLock(State s, Blackhole bh) {
         s.lock.lock();
         s.lock.unlock();
+    }
+
+    @Benchmark
+    public void testReadLock(State s, Blackhole bh) {
+        s.readLock.lock();
+        s.readLock.unlock();
+    }
+
+    @Benchmark
+    public void testWriteLock(State s, Blackhole bh) {
+        s.writeLock.lock();
+        s.writeLock.unlock();
     }
 
 }
