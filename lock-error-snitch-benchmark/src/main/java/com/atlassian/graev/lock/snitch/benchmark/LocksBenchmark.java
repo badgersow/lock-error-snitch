@@ -36,7 +36,6 @@ import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -55,19 +54,19 @@ public class LocksBenchmark {
     }
 
     @Benchmark
-    public void testOrdinaryLock(State s, Blackhole bh) {
+    public void testOrdinaryLock(State s) {
         s.lock.lock();
         s.lock.unlock();
     }
 
     @Benchmark
-    public void testReadLock(State s, Blackhole bh) {
+    public void testReadLock(State s) {
         s.readLock.lock();
         s.readLock.unlock();
     }
 
     @Benchmark
-    public void testWriteLock(State s, Blackhole bh) {
+    public void testWriteLock(State s) {
         s.writeLock.lock();
         s.writeLock.unlock();
     }
