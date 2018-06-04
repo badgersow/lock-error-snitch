@@ -14,25 +14,27 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+
 /**
  * This class instruments bytecode for locks
  */
-class LockDecorator implements ClassFileTransformer {
+class LocksDecorator implements ClassFileTransformer {
 
-    private final Map<String, Collection<String>> methodsByClass = new HashMap<>();
+    private final Map<String, Collection<MethodDecorator>> methodsByClass = new HashMap<>();
 
     private final List<Class<?>> classes = new ArrayList<>();
 
-    LockDecorator() throws ClassNotFoundException {
-        methodsByClass.put("java/util/concurrent/locks/ReentrantLock", Arrays.asList("lock", "unlock"));
-        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$ReadLock", Arrays.asList("lock", "unlock"));
-        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock", Arrays.asList("lock", "unlock"));
+    LocksDecorator() throws ClassNotFoundException {
+        List<MethodDecorator> methodDecorators = asList(new LockMethodDecorator(), new UnlockMethodDecorator());
+        methodsByClass.put("java/util/concurrent/locks/ReentrantLock", methodDecorators);
+        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$ReadLock", methodDecorators);
+        methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock", methodDecorators);
 
         for (String className : methodsByClass.keySet()) {
             classes.add(Class.forName(className.replace('/', '.')));
@@ -64,7 +66,7 @@ class LockDecorator implements ClassFileTransformer {
         return bytecode;
     }
 
-    private byte[] instrumentMethods(byte[] bytecode, String className, Collection<String> methods) {
+    private byte[] instrumentMethods(byte[] bytecode, String className, Collection<MethodDecorator> methods) {
         try {
             return doInstrumentMethods(bytecode, className, methods);
         } catch (NotFoundException | CannotCompileException | IOException e) {
@@ -72,7 +74,7 @@ class LockDecorator implements ClassFileTransformer {
         }
     }
 
-    private byte[] doInstrumentMethods(byte[] bytecode, String className, Collection<String> methods) throws NotFoundException, CannotCompileException, IOException {
+    private byte[] doInstrumentMethods(byte[] bytecode, String className, Collection<MethodDecorator> methods) throws NotFoundException, CannotCompileException, IOException {
         if (methods.isEmpty()) {
             return bytecode;
         }
@@ -82,21 +84,12 @@ class LockDecorator implements ClassFileTransformer {
 
         AgentLogger.print("Instrumenting {0} methods for class {1}", methods.size(), className);
 
-        for (String methodName : methods) {
-            final CtMethod method = classDefinition.getMethod(methodName,
+        for (MethodDecorator methodDecorator : methods) {
+            final CtMethod method = classDefinition.getMethod(methodDecorator.methodName(),
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
-            AgentLogger.print("Inserting logging code to the method {0}", methodName);
-            // Before useful lock code let's do dummy recursion to provoke StackOverflowError
-            method.insertBefore("" +
-                    "{ " +
-                    "   com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.dummyRecursion(); " +
-                    "}");
-            // Catch errors and save them to file
-            method.addCatch("" +
-                    "{ " +
-                    "   com.atlassian.graev.lock.snitch.agent.InstrumentedCodeHelper.printThrowableToFile($e); " +
-                    "   throw $e; " +
-                    "}", pool.get("java.lang.Throwable"));
+            AgentLogger.print("Inserting logging code to the method {0} using {1}",
+                    methodDecorator.methodName(), methodDecorator.getClass().getSimpleName());
+            methodDecorator.decorate(pool, method);
         }
 
         byte[] newBytecode = classDefinition.toBytecode();
