@@ -32,12 +32,25 @@
 package com.atlassian.graev.lock.snitch.benchmark;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.infra.Blackhole;
 
-public class LockBenchmark {
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ReentrantLockBenchmark {
+
+    @org.openjdk.jmh.annotations.State(Scope.Thread)
+    public static class State {
+        ReentrantLock lock = new ReentrantLock();
+    }
 
     @Benchmark
-    public void testMethod() {
-
+    @BenchmarkMode(Mode.AverageTime)
+    public void testLockUnlock(State s, Blackhole bh) {
+        s.lock.lock();
+        s.lock.unlock();
     }
 
 }
