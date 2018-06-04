@@ -32,14 +32,10 @@ public class InstrumentedCodeHelper {
     public static void dummyRecursion() {
         final long time = System.nanoTime();
         doDummyRecursion(Settings.recursionDepth(),
-                e(time, 1), e(time, 2), e(time, 3), e(time, 4), e(time, 5),
-                e(time, 6), e(time, 7), e(time, 8), e(time, 9), e(time, 10),
-                e(time, 11), e(time, 12), e(time, 13), e(time, 14), e(time, 15),
-                e(time, 16), e(time, 17), e(time, 18), e(time, 19), e(time, 20));
-    }
-
-    private static long e(long time, int bit) {
-        return time & (1 << bit);
+                1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10,
+                11, 12, 13, 14, 15,
+                16, 17, 18, 19, 20);
     }
 
     /**

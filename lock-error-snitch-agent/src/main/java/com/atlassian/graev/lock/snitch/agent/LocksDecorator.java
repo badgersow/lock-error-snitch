@@ -95,7 +95,17 @@ class LocksDecorator implements ClassFileTransformer {
         byte[] newBytecode = classDefinition.toBytecode();
         classDefinition.detach();
         AgentLogger.print("Done! The length of the new bytecode is {0}", newBytecode.length);
+        AgentLogger.print("The bytecode for this class is below:");
+        AgentLogger.print("{0}", hexString(newBytecode));
         return newBytecode;
+    }
+
+    private static String hexString(byte[] bytes) {
+        final StringBuilder builder = new StringBuilder();
+        for (byte b : bytes) {
+            builder.append(Integer.toHexString(b));
+        }
+        return builder.toString();
     }
 
 }
