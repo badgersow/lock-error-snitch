@@ -33,7 +33,9 @@ public class LockMonsterDemo {
         }
 
         // As we write traces files asynchronously, allow some time for this
-        Thread.sleep(TimeUnit.SECONDS.toMillis(3));
+        final int timeoutSec = 3;
+        System.out.println("Waiting " + timeoutSec + " sec to allow other threads to write traces");
+        Thread.sleep(TimeUnit.SECONDS.toMillis(timeoutSec));
     }
 
     private void corruptLockAndSuppressError() {
