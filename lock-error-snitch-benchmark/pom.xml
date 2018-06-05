@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lock-error-snitch</artifactId>
         <groupId>com.atlassian.graev</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <artifactId>lock-error-snitch-benchmark</artifactId>
