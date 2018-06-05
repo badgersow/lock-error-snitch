@@ -1,5 +1,6 @@
 package com.atlassian.graev.lock.snitch.sample;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -30,6 +31,9 @@ public class LockMonsterDemo {
         } else {
             System.out.println("Lock was corrupted by StackOverflowError");
         }
+
+        // Allow async writers to create files
+        Thread.sleep(TimeUnit.SECONDS.toMillis(3));
     }
 
     private void corruptLockAndSuppressError() {

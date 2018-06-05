@@ -6,6 +6,13 @@ import java.text.MessageFormat;
  * Helper class to log the actions of agent
  */
 class AgentLogger {
+
+    static void debug(String s, Object... args) {
+        if (Boolean.getBoolean("lock.snitch.debug")) {
+            print(s, args);
+        }
+    }
+
     static void print(String s, Object... args) {
         if (args.length == 0) {
             print(s);

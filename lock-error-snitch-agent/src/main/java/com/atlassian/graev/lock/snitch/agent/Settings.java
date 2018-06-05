@@ -22,12 +22,9 @@ class Settings {
     private static final int MAX_TRACE_FILES = Integer.getInteger("lock.snitch.max.trace.files", 100);
 
     /**
-     * Depth of dummy recursion.
-     * Should be little enough not to affect performance.
-     * Should be big enough to give us required stack size for logging.
-     * Default value is a trade-off between efficiency and safety.
+     * Async thread will check pending errors to write with this period of time.
      */
-    private static final int RECURSION_DEPTH = Integer.getInteger("lock.snitch.recursion.depth", 30);
+    private static final long STORE_POLL_PERIOD_MS = Long.getLong("lock.snitch.store.poll.period", 1000L);
 
     static boolean skipInitFile() {
         return SKIP_INIT_FILE;
@@ -41,7 +38,8 @@ class Settings {
         return MAX_TRACE_FILES;
     }
 
-    static int recursionDepth() {
-        return RECURSION_DEPTH;
+    static long storePollPeriodMs() {
+        return STORE_POLL_PERIOD_MS;
     }
+
 }

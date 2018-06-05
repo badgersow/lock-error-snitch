@@ -7,6 +7,7 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -26,12 +27,12 @@ import static java.util.Arrays.asList;
  */
 class LocksDecorator implements ClassFileTransformer {
 
-    private final Map<String, Collection<MethodDecorator>> methodsByClass = new HashMap<>();
+    private final Map<String, Collection<String>> methodsByClass = new HashMap<>();
 
     private final List<Class<?>> classes = new ArrayList<>();
 
     LocksDecorator() throws ClassNotFoundException {
-        List<MethodDecorator> methodDecorators = asList(new LockMethodDecorator(), new UnlockMethodDecorator());
+        List<String> methodDecorators = asList("lock", "unlock");
         methodsByClass.put("java/util/concurrent/locks/ReentrantLock", methodDecorators);
         methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$ReadLock", methodDecorators);
         methodsByClass.put("java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock", methodDecorators);
@@ -66,7 +67,7 @@ class LocksDecorator implements ClassFileTransformer {
         return bytecode;
     }
 
-    private byte[] instrumentMethods(byte[] bytecode, String className, Collection<MethodDecorator> methods) {
+    private byte[] instrumentMethods(byte[] bytecode, String className, Collection<String> methods) {
         try {
             return doInstrumentMethods(bytecode, className, methods);
         } catch (NotFoundException | CannotCompileException | IOException e) {
@@ -74,7 +75,7 @@ class LocksDecorator implements ClassFileTransformer {
         }
     }
 
-    private byte[] doInstrumentMethods(byte[] bytecode, String className, Collection<MethodDecorator> methods) throws NotFoundException, CannotCompileException, IOException {
+    private byte[] doInstrumentMethods(byte[] bytecode, String className, Collection<String> methods) throws NotFoundException, CannotCompileException, IOException {
         if (methods.isEmpty()) {
             return bytecode;
         }
@@ -84,28 +85,28 @@ class LocksDecorator implements ClassFileTransformer {
 
         AgentLogger.print("Instrumenting {0} methods for class {1}", methods.size(), className);
 
-        for (MethodDecorator methodDecorator : methods) {
-            final CtMethod method = classDefinition.getMethod(methodDecorator.methodName(),
+        for (String methodName : methods) {
+            final CtMethod method = classDefinition.getMethod(methodName,
                     Descriptor.ofMethod(CtClass.voidType, new CtClass[0]));
-            AgentLogger.print("Inserting logging code to the method {0} using {1}",
-                    methodDecorator.methodName(), methodDecorator.getClass().getSimpleName());
-            methodDecorator.decorate(pool, method);
+            AgentLogger.print("Inserting logging code to the method {0}", methodName);
+            method.addCatch("" +
+                    "{ " +
+                    "   com.atlassian.graev.lock.snitch.agent.AsyncTracesWriter.pendingThrowable = $e; " +
+                    "   throw $e; " +
+                    "}", pool.get("java.lang.Throwable"));
+
         }
 
         byte[] newBytecode = classDefinition.toBytecode();
         classDefinition.detach();
         AgentLogger.print("Done! The length of the new bytecode is {0}", newBytecode.length);
-        AgentLogger.print("The bytecode for this class is below:");
-        AgentLogger.print("{0}", hexString(newBytecode));
+        AgentLogger.debug("The bytecode for this class is below:");
+        AgentLogger.debug("{0}", hexString(newBytecode));
         return newBytecode;
     }
 
     private static String hexString(byte[] bytes) {
-        final StringBuilder builder = new StringBuilder();
-        for (byte b : bytes) {
-            builder.append(Integer.toHexString(b));
-        }
-        return builder.toString();
+        return DatatypeConverter.printHexBinary(bytes);
     }
 
 }
