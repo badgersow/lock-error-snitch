@@ -75,28 +75,30 @@ $ java -cp lock-snitch-agent.jar -javaagent:lock-snitch-agent.jar com.atlassian.
 Instrumenting 2 methods for class java/util/concurrent/locks/ReentrantReadWriteLock$WriteLock
 Inserting logging code to the method lock
 Inserting logging code to the method unlock
-Done! The length of the new bytecode is 2,587
+Done! The length of the new bytecode is 2,527
 Instrumenting 2 methods for class java/util/concurrent/locks/ReentrantReadWriteLock$ReadLock
 Inserting logging code to the method lock
 Inserting logging code to the method unlock
-Done! The length of the new bytecode is 2,106
+Done! The length of the new bytecode is 2,061
 Instrumenting 2 methods for class java/util/concurrent/locks/ReentrantLock
 Inserting logging code to the method lock
 Inserting logging code to the method unlock
-Done! The length of the new bytecode is 4,219
+Done! The length of the new bytecode is 4,164
+All locks bytecode has been instrumented
+Traces writing thread has been spawned
 Start corrupting the lock...
-Lock wasn't corrupted
-$ cat lock-snitch-trace-37144858468344-8178 | grep -v InstrumentedCodeHelper.java | head
+Lock was corrupted by StackOverflowError
+$ cat snitch-trace-226862108281253 | head
 java.lang.StackOverflowError
-	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:42)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
-	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:44)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.setState(AbstractQueuedSynchronizer.java:550)
+	at java.util.concurrent.locks.ReentrantLock$Sync.tryRelease(ReentrantLock.java:157)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.release(AbstractQueuedSynchronizer.java:1261)
+	at java.util.concurrent.locks.ReentrantLock.unlock(ReentrantLock.java:457)
+	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:51)
+	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:52)
+	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:52)
+	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:52)
+	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:52)
 ```
 
 #### Parameters
@@ -114,6 +116,6 @@ Directory where trace files are going to be created. Please check that applicati
 
 Maximum number of files with listing for this particular JVM. Helps not to spam the hard drive.
 
-`-Dlock.snitch.recursion.depth=250`
+`-Dlock.snitch.store.poll.period=1000`
 
-Depth of the dummy recursion. Trade-off between performance and ability to have enough stack frames for logging.
+This period is used by async writer thread to poll any pending errors before writing them to file
