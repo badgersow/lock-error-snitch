@@ -90,6 +90,54 @@ java.lang.StackOverflowError
 	at com.atlassian.graev.lock.snitch.sample.LockMonsterDemo.messWithLock(LockMonsterDemo.java:52)
 ```
 
+#### Bytecode
+
+Bytecode of instrumented ReentrantLock#lock
+```
+public void lock();
+  descriptor: ()V
+  flags: ACC_PUBLIC
+  Code:
+    stack=1, locals=2, args_size=1
+       0: aload_0
+       1: getfield      #4                  // Field sync:Ljava/util/concurrent/locks/ReentrantLock$Sync;
+       4: invokevirtual #7                  // Method java/util/concurrent/locks/ReentrantLock$Sync.lock:()V
+       7: return
+       8: astore_1
+       9: aload_1
+      10: putstatic     #175                // Field com/atlassian/graev/lock/snitch/agent/AsyncTracesWriter.pendingThrowable:Ljava/lang/Throwable;
+      13: aload_1
+      14: athrow
+    Exception table:
+       from    to  target type
+           0     8     8   Class java/lang/Throwable
+    LineNumberTable:
+      line 285: 0
+      line 286: 7
+    StackMapTable: number_of_entries = 1
+      frame_type = 72 /* same_locals_1_stack_item */
+        stack = [ class java/lang/Throwable ]
+```
+
+#### Benchmarks
+
+Vanilla java locks
+```
+Benchmark                         Mode  Cnt   Score   Error   Units
+LocksBenchmark.testOrdinaryLock  thrpt   25  58.164 ± 0.499  ops/us
+LocksBenchmark.testReadLock      thrpt   25  51.046 ± 0.209  ops/us
+LocksBenchmark.testWriteLock     thrpt   25  57.134 ± 0.167  ops/us
+
+```
+
+Instrumented locks
+```
+Benchmark                         Mode  Cnt   Score   Error   Units
+LocksBenchmark.testOrdinaryLock  thrpt   25  57.231 ± 0.779  ops/us
+LocksBenchmark.testReadLock      thrpt   25  49.532 ± 0.617  ops/us
+LocksBenchmark.testWriteLock     thrpt   25  56.285 ± 0.558  ops/us
+```
+
 #### Parameters
 
 `-Dlock.snitch.skip.init.file=false`
