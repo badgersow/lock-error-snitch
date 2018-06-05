@@ -37,7 +37,7 @@ public class LockMonsterDemo {
     }
 
     private void corruptLockAndSuppressError() {
-        System.out.println("Start corrupting the victim...");
+        System.out.println("Start corrupting the lock...");
         try {
             messWithLock();
         } catch (Throwable t) {

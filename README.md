@@ -63,11 +63,11 @@ The agent jar can be found in `lock-error-snitch-agent/target/lock-snitch-agent.
 To use in your JVM, simply pass `-javaagent:/path/to/lock-snitch-agent.jar`. Please note: it is important NOT to rename
 agent JAR file because its filename is hardcoded for classloading hacks.
 
-To check that it works, agent jar file has a [demo class that corrupts the lock](https://github.com/badgersow/lock-error-snitch/blob/master/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java).
-Please see the example below. If your can't reproduce corrupted locks without the agent, don't worry. It's very platform-specific
-and depends on many factors. On the other hand, if you can reproduce corrupted locks with agent, this is a bug. Please write me an email.
+To check that it works, agent jar file has a [demo class that corrupts the lock](https://bitbucket.org/egraev/lock-error-snitch/src/master/lock-error-snitch-agent/src/main/java/com/atlassian/graev/lock/snitch/sample/LockMonsterDemo.java).
+Please see the example below. If the lock is corrupted, you should see trace file with error listing.
 
 ```
+$ cd lock-error-snitch-agent/target
 $ java -cp lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
 Start corrupting the lock...
 Lock was corrupted by StackOverflowError
