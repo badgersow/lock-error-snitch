@@ -1,14 +1,11 @@
 ## Lock error snitch
 
-Simple Java Agent to save you from StackOverflowErrors inside ReentrantLocks
+Simple Java Agent to log any Throwables inside ReentrantLocks
 
 #### TL;DR
 
-StackOverflowException inside lock/unlock methods
-* Will NOT corrupt lock instances
-* Stack trace will be logged for further investigation
-
-*Downside:* lock/unlock methods become slower
+Throwables inside lock/unlock methods will be logged even if they are caught and swallowed by user code. 
+Mainly created for StackOverflowErrors.
 
 *Warning:* this agent loads javassist. Please make sure its version is compatible with your application. 
 
@@ -22,7 +19,7 @@ This situation is very hard to detect because when you catch StackOverflowError,
 to log this error. As a result logs might not contain the error inside locks. This one unlucky corrupted lock may eventually
 force all threads to hang.
 
-Pattern would be the following:
+Symptoms are usually look this way:
 * you see threads waiting for lock in thread dump
 * you don't see the owner of the lock in thread dump
 * if you look at the owner in heap dump, this owner would be killed or doing unrelated job
@@ -39,19 +36,12 @@ Java agent loads before `main()` method is called and instruments bytecode of th
 * `j.u.c.l.ReentrantReadWriteLock$WriteLock#lock`
 * `j.u.c.l.ReentrantReadWriteLock$WriteLock#unlock`
 
-Instrumented code does
-1. Before useful method execution it does dummy recursion of predefined depth to check that we have enough
-stack space and to provoke StackOverflowError earlier.
-2. Catches any Throwables and stores them to file.
-
-These two actions allow us to
-* StackOverflowError inside lock/unlock methods won't corrupt them because they will happen in dummy recursion
-before any lock state is changed.
-* When any error inside lock/unlock methods happen, they will be logged in file for further investigation.
+Instrumented code catches Throwables and writes them to file. Actual writing happens in another thread, which is vital
+because after StackOverflowError the original thread might not have enough stack frames for logging.
 
 #### Build
 ```
-git clone git@github.com:badgersow/lock-error-snitch.git
+git clone git clone git@bitbucket.org:egraev/lock-error-snitch.git
 cd lock-error-snitch
 mvn clean package
 ```
@@ -67,7 +57,6 @@ To check that it works, agent jar file has a [demo class that corrupts the lock]
 Please see the example below. If the lock is corrupted, you should see trace file with error listing.
 
 ```
-$ cd lock-error-snitch-agent/target
 $ java -cp lock-snitch-agent.jar com.atlassian.graev.lock.snitch.sample.LockMonsterDemo
 Start corrupting the lock...
 Lock was corrupted by StackOverflowError
