@@ -29,6 +29,7 @@ Once this error is detected, only JVM restart can help.
 #### How it works
 
 Java agent loads before `main()` method is called and instruments bytecode of the methods in standard Java classes:
+
 * `j.u.c.l.ReentrantLock#lock`
 * `j.u.c.l.ReentrantLock#unlock`
 * `j.u.c.l.ReentrantReadWriteLock$ReadLock#lock`
