@@ -16,6 +16,7 @@ class AgentLogger {
     static void print(String s, Object... args) {
         if (args.length == 0) {
             print(s);
+            return;
         }
 
         print(MessageFormat.format(s, args));
