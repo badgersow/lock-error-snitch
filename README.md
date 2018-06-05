@@ -20,6 +20,7 @@ to log this error. As a result logs might not contain the error inside locks. Th
 force all threads to hang.
 
 Symptoms are usually look this way:
+
 * you see threads waiting for lock in thread dump
 * you don't see the owner of the lock in thread dump
 * if you look at the owner in heap dump, this owner would be killed or doing unrelated job
