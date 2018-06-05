@@ -5,15 +5,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * Separate thread that will write lock throwables to file.
- * We are doing it from another thread because first one doesn't have enough stack frames for it.
+ * Separate thread that writes traces to files.
+ * We are doing it from another thread because the thread that catched StackOverflowError might not have
+ * enough stack frames for logging.
  * <p>
- * It's OK to have data race here as long as we have liveness property.
+ * It's OK to have data races here as long as we have liveness property.
  */
 public class AsyncTracesWriter implements Runnable {
 
+    /**
+     * Control how many files we wrote because we don't want to spam hard drive with them
+     */
     private static long writtenListings = 0;
 
+    /**
+     * This field is an entry point for another threads to schedule logging.
+     * We don't use methods because we might not have stack frames.
+     */
     @SuppressWarnings("WeakerAccess")
     public static volatile Throwable pendingThrowable = null;
 
@@ -27,12 +35,12 @@ public class AsyncTracesWriter implements Runnable {
                 Thread.sleep(Settings.storePollPeriodMs());
 
                 if (writtenListings >= Settings.maxTraceFiles()) {
-                    // Finish the thread if we wrote enough traces
+                    // If enough trace files are created, we don't need this thread anymore
                     return;
                 }
             }
         } catch (InterruptedException e) {
-            // OK, whatever
+            // Interruption can only happen on application shutdown. We shouldn't do anything special.
         }
     }
 
@@ -60,6 +68,9 @@ public class AsyncTracesWriter implements Runnable {
 
     }
 
+    /**
+     * Init file just signals that agent is running and can write to output directory.
+     */
     private static void createInitFileIfNeeded() {
         if (Settings.skipInitFile()) {
             return;

@@ -5,13 +5,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Demo class to fail without agent and to path with one.
- * It is very hard to emulate the same thing with unit tests because it is highly platform specific.
+ * Demo class that corrupts the victim by StackOverflowing and swallows the error.
+ * Running this with agent should create trace file to show the exact site of StackOverflowError.
  */
 @SuppressWarnings("WeakerAccess")
 public class LockMonsterDemo {
 
-    private final Lock lock = new ReentrantLock();
+    private final Lock victim = new ReentrantLock();
 
     public static void main(String[] args) throws InterruptedException {
         new LockMonsterDemo().spawnMonster();
@@ -26,18 +26,18 @@ public class LockMonsterDemo {
         lockMonster.start();
         lockMonster.join();
 
-        if (lock.tryLock()) {
+        if (victim.tryLock()) {
             System.out.println("Lock wasn't corrupted");
         } else {
             System.out.println("Lock was corrupted by StackOverflowError");
         }
 
-        // Allow async writers to create files
+        // As we write traces files asynchronously, allow some time for this
         Thread.sleep(TimeUnit.SECONDS.toMillis(3));
     }
 
     private void corruptLockAndSuppressError() {
-        System.out.println("Start corrupting the lock...");
+        System.out.println("Start corrupting the victim...");
         try {
             messWithLock();
         } catch (Throwable t) {
@@ -47,8 +47,8 @@ public class LockMonsterDemo {
 
     @SuppressWarnings("InfiniteRecursion")
     private void messWithLock() {
-        lock.lock();
-        lock.unlock();
+        victim.lock();
+        victim.unlock();
         messWithLock();
     }
 

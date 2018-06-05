@@ -3,7 +3,7 @@ package com.atlassian.graev.lock.snitch.agent;
 import java.text.MessageFormat;
 
 /**
- * Helper class to log the actions of agent
+ * Helper class to log the actions of agent to stdio
  */
 class AgentLogger {
 
